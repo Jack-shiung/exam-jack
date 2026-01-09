@@ -8,6 +8,7 @@ const RunningClock = () => {
 
   const [count, setCount] = useState<number>(0)
   const [play, setPlay] = useState<boolean>(false)
+  const [paused, setPaused] = useState<boolean>(false)
 
   const displayTime = useMemo(() => {
     const min = Math.floor(count / 60)
@@ -22,6 +23,7 @@ const RunningClock = () => {
       setCount(c => {
         if (c <= 0) {
           timer.current && clearTimeout(timer.current)
+          setPlay(false)
           return c
         }
         return  c - 1
@@ -40,6 +42,7 @@ const RunningClock = () => {
     setCount(min * 60 + sec)
 
     setPlay(true)
+    setPaused(false)
   }
 
   const resetHandler = () => {
@@ -54,12 +57,12 @@ const RunningClock = () => {
   }
 
   useEffect(() => {
-    if (!play) return
+    if (!play || paused) return
     countDownHandler()
     return () => {
       if (timer.current) clearTimeout(timer.current)
     }
-  }, [countDownHandler, play])
+  }, [countDownHandler, play, paused])
 
   return (
     <div>
@@ -74,7 +77,7 @@ const RunningClock = () => {
         </label> 
       </div>
       <button onClick={startHandler}>START</button> 
-      <button onClick={setPlay.bind(null, !play)}>{ play ? 'PAUSE' : 'RESUME'}</button> 
+      <button onClick={setPaused.bind(null, !paused)}>{paused ? 'RESUME' : 'PAUSE' }</button> 
       <button onClick={resetHandler}>RESET</button> 
       <h1 data-testid="running-clock">{displayTime}</h1>
     </div>
